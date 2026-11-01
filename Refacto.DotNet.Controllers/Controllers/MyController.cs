@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Refacto.DotNet.Controllers.Database.Context;
 using Refacto.DotNet.Controllers.Dtos.Product;
+using Refacto.DotNet.Controllers.Entities;
 using Refacto.DotNet.Controllers.Services.Impl;
 
 namespace Refacto.DotNet.Controllers.Controllers
@@ -32,47 +33,25 @@ namespace Refacto.DotNet.Controllers.Controllers
 
             foreach (Entities.Product p in products)
             {
-                if (p.Type == "NORMAL")
+                if (p.CanBeSold(DateTime.Now))
                 {
-                    if (p.Available > 0)
+                    p.Sell();
+                    _ = _ctx.SaveChanges();
+                }
+                else if (p.Type == ProductType.Normal)
+                {
+                    if (p.LeadTime > 0)
                     {
-                        p.Available -= 1;
-                        _ctx.Entry(p).State = EntityState.Modified;
-                        _ = _ctx.SaveChanges();
-
-                    }
-                    else
-                    {
-                        int leadTime = p.LeadTime;
-                        if (leadTime > 0)
-                        {
-                            _ps.NotifyDelay(leadTime, p);
-                        }
+                        _ps.NotifyDelay(p.LeadTime, p);
                     }
                 }
-                else if (p.Type == "SEASONAL")
+                else if (p.Type == ProductType.Seasonal)
                 {
-                    if (DateTime.Now.Date > p.SeasonStartDate && DateTime.Now.Date < p.SeasonEndDate && p.Available > 0)
-                    {
-                        p.Available -= 1;
-                        _ = _ctx.SaveChanges();
-                    }
-                    else
-                    {
-                        _ps.HandleSeasonalProduct(p);
-                    }
+                    _ps.HandleSeasonalProduct(p);
                 }
-                else if (p.Type == "EXPIRABLE")
+                else if (p.Type == ProductType.Expirable)
                 {
-                    if (p.Available > 0 && p.ExpiryDate > DateTime.Now.Date)
-                    {
-                        p.Available -= 1;
-                        _ = _ctx.SaveChanges();
-                    }
-                    else
-                    {
-                        _ps.HandleExpiredProduct(p);
-                    }
+                    _ps.HandleExpiredProduct(p);
                 }
             }
 
