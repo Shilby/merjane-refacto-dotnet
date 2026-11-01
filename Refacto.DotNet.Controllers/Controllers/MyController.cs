@@ -1,8 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Refacto.DotNet.Controllers.Database.Context;
 using Refacto.DotNet.Controllers.Dtos.Product;
-using Refacto.DotNet.Controllers.Entities;
 using Refacto.DotNet.Controllers.Services.Impl;
 
 namespace Refacto.DotNet.Controllers.Controllers
@@ -11,52 +8,19 @@ namespace Refacto.DotNet.Controllers.Controllers
     [Route("orders")]
     public class OrdersController : ControllerBase
     {
-        private readonly ProductService _ps;
-        private readonly AppDbContext _ctx;
+        private readonly OrderService _orderService;
 
-        public OrdersController(ProductService ps, AppDbContext ctx)
+        public OrdersController(OrderService orderService)
         {
-            _ps = ps;
-            _ctx = ctx;
+            _orderService = orderService;
         }
 
         [HttpPost("{orderId}/processOrder")]
         [ProducesResponseType(200)]
         public ActionResult<ProcessOrderResponse> ProcessOrder(long orderId)
         {
-            Entities.Order? order = _ctx.Orders
-                .Include(o => o.Items)
-                .SingleOrDefault(o => o.Id == orderId);
-            Console.WriteLine(order);
-            List<long> ids = new() { orderId };
-            ICollection<Entities.Product>? products = order.Items;
-
-            DateTime now = DateTime.Now;
-            foreach (Entities.Product p in products)
-            {
-                if (p.CanBeSold(now))
-                {
-                    p.Sell();
-                    _ = _ctx.SaveChanges();
-                }
-                else if (p.Type == ProductType.Normal)
-                {
-                    if (p.LeadTime > 0)
-                    {
-                        _ps.NotifyDelay(p.LeadTime, p);
-                    }
-                }
-                else if (p.Type == ProductType.Seasonal)
-                {
-                    _ps.HandleSeasonalProduct(p, now);
-                }
-                else if (p.Type == ProductType.Expirable)
-                {
-                    _ps.HandleExpiredProduct(p, now);
-                }
-            }
-
-            return new ProcessOrderResponse(order.Id);
+            _orderService.ProcessOrder(orderId);
+            return new ProcessOrderResponse(orderId);
         }
     }
 }

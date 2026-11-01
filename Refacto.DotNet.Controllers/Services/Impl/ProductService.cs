@@ -14,6 +14,32 @@ namespace Refacto.DotNet.Controllers.Services.Impl
             _ctx = ctx;
         }
 
+        public void ProcessOrderedProduct(Product p, DateTime now)
+        {
+            if (p.CanBeSold(now))
+            {
+                p.Sell();
+                _ = _ctx.SaveChanges();
+                return;
+            }
+
+            switch (p.Type)
+            {
+                case ProductType.Normal:
+                    if (p.LeadTime > 0)
+                    {
+                        NotifyDelay(p.LeadTime, p);
+                    }
+                    break;
+                case ProductType.Seasonal:
+                    HandleSeasonalProduct(p, now);
+                    break;
+                case ProductType.Expirable:
+                    HandleExpiredProduct(p);
+                    break;
+            }
+        }
+
         public void NotifyDelay(int leadTime, Product p)
         {
             p.LeadTime = leadTime;
@@ -21,7 +47,7 @@ namespace Refacto.DotNet.Controllers.Services.Impl
             _ns.SendDelayNotification(leadTime, p.Name);
         }
 
-        public void HandleSeasonalProduct(Product p, DateTime now)
+        private void HandleSeasonalProduct(Product p, DateTime now)
         {
             if (now.AddDays(p.LeadTime) > p.SeasonEndDate)
             {
@@ -40,19 +66,11 @@ namespace Refacto.DotNet.Controllers.Services.Impl
             }
         }
 
-        public void HandleExpiredProduct(Product p, DateTime now)
+        private void HandleExpiredProduct(Product p)
         {
-            if (p.Available > 0 && p.ExpiryDate > now)
-            {
-                p.Available -= 1;
-                _ = _ctx.SaveChanges();
-            }
-            else
-            {
-                _ns.SendExpirationNotification(p.Name, (DateTime)p.ExpiryDate);
-                p.Available = 0;
-                _ = _ctx.SaveChanges();
-            }
+            _ns.SendExpirationNotification(p.Name, (DateTime)p.ExpiryDate);
+            p.Available = 0;
+            _ = _ctx.SaveChanges();
         }
     }
 }
