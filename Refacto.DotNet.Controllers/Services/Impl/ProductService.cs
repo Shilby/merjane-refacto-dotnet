@@ -1,5 +1,6 @@
 ﻿using Refacto.DotNet.Controllers.Database.Context;
 using Refacto.DotNet.Controllers.Entities;
+using Refacto.DotNet.Controllers.ProductRules;
 
 namespace Refacto.DotNet.Controllers.Services.Impl
 {
@@ -16,61 +17,12 @@ namespace Refacto.DotNet.Controllers.Services.Impl
 
         public void ProcessOrderedProduct(Product p, DateTime now)
         {
-            if (p.CanBeSold(now))
-            {
-                p.Sell();
-                _ = _ctx.SaveChanges();
-                return;
-            }
-
-            switch (p.Type)
-            {
-                case ProductType.Normal:
-                    if (p.LeadTime > 0)
-                    {
-                        NotifyDelay(p.LeadTime, p);
-                    }
-                    break;
-                case ProductType.Seasonal:
-                    HandleSeasonalProduct(p, now);
-                    break;
-                case ProductType.Expirable:
-                    HandleExpiredProduct(p);
-                    break;
-            }
+            ProductTypeRulesFactory.Create(p.Type, _ns, _ctx)?.Process(p, now);
         }
 
         public void NotifyDelay(int leadTime, Product p)
         {
-            p.LeadTime = leadTime;
-            _ = _ctx.SaveChanges();
-            _ns.SendDelayNotification(leadTime, p.Name);
-        }
-
-        private void HandleSeasonalProduct(Product p, DateTime now)
-        {
-            if (now.AddDays(p.LeadTime) > p.SeasonEndDate)
-            {
-                _ns.SendOutOfStockNotification(p.Name);
-                p.Available = 0;
-                _ = _ctx.SaveChanges();
-            }
-            else if (p.SeasonStartDate > now)
-            {
-                _ns.SendOutOfStockNotification(p.Name);
-                _ = _ctx.SaveChanges();
-            }
-            else
-            {
-                NotifyDelay(p.LeadTime, p);
-            }
-        }
-
-        private void HandleExpiredProduct(Product p)
-        {
-            _ns.SendExpirationNotification(p.Name, (DateTime)p.ExpiryDate);
-            p.Available = 0;
-            _ = _ctx.SaveChanges();
+            new NormalProductRules(_ns, _ctx).NotifyDelay(leadTime, p);
         }
     }
 }

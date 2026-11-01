@@ -32,17 +32,6 @@ namespace Refacto.DotNet.Controllers.Entities
         [Column("season_end_date")]
         public DateTime? SeasonEndDate { get; set; }
 
-        public bool CanBeSold(DateTime now)
-        {
-            return Available > 0 && Type switch
-            {
-                ProductType.Normal => true,
-                ProductType.Seasonal => now.Date > SeasonStartDate && now.Date < SeasonEndDate,
-                ProductType.Expirable => ExpiryDate > now.Date,
-                _ => false
-            };
-        }
-
         public void Sell()
         {
             Available -= 1;
