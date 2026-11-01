@@ -6,19 +6,19 @@ namespace Refacto.DotNet.Controllers.ProductRules
 {
     public class NormalProductRules : ProductTypeRules
     {
-        public NormalProductRules(INotificationService ns, AppDbContext ctx) : base(ns, ctx)
+        public NormalProductRules(INotificationService notificationService, AppDbContext dbContext) : base(notificationService, dbContext)
         {
         }
 
-        public override void Process(Product p, DateTime now)
+        public override void Process(Product product, DateTime now)
         {
-            if (p.Available > 0)
+            if (product.Available > 0)
             {
-                Sell(p);
+                Sell(product);
             }
-            else if (p.LeadTime > 0)
+            else if (product.LeadTime > 0)
             {
-                NotifyDelay(p.LeadTime, p);
+                NotifyDelay(product.LeadTime, product);
             }
         }
     }

@@ -6,21 +6,21 @@ namespace Refacto.DotNet.Controllers.ProductRules
 {
     public class ExpirableProductRules : ProductTypeRules
     {
-        public ExpirableProductRules(INotificationService ns, AppDbContext ctx) : base(ns, ctx)
+        public ExpirableProductRules(INotificationService notificationService, AppDbContext dbContext) : base(notificationService, dbContext)
         {
         }
 
-        public override void Process(Product p, DateTime now)
+        public override void Process(Product product, DateTime now)
         {
-            if (p.Available > 0 && p.ExpiryDate > now.Date)
+            if (product.Available > 0 && product.ExpiryDate > now.Date)
             {
-                Sell(p);
+                Sell(product);
             }
             else
             {
-                _ns.SendExpirationNotification(p.Name, (DateTime)p.ExpiryDate);
-                p.Available = 0;
-                _ = _ctx.SaveChanges();
+                _notificationService.SendExpirationNotification(product.Name, (DateTime)product.ExpiryDate);
+                product.Available = 0;
+                _ = _dbContext.SaveChanges();
             }
         }
     }

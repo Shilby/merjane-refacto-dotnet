@@ -6,13 +6,13 @@ namespace Refacto.DotNet.Controllers.ProductRules
 {
     public static class ProductTypeRulesFactory
     {
-        public static ProductTypeRules? Create(string? type, INotificationService ns, AppDbContext ctx)
+        public static ProductTypeRules? Create(string? type, INotificationService notificationService, AppDbContext dbContext)
         {
             return type switch
             {
-                ProductType.Normal => new NormalProductRules(ns, ctx),
-                ProductType.Seasonal => new SeasonalProductRules(ns, ctx),
-                ProductType.Expirable => new ExpirableProductRules(ns, ctx),
+                ProductType.Normal => new NormalProductRules(notificationService, dbContext),
+                ProductType.Seasonal => new SeasonalProductRules(notificationService, dbContext),
+                ProductType.Expirable => new ExpirableProductRules(notificationService, dbContext),
                 _ => null
             };
         }

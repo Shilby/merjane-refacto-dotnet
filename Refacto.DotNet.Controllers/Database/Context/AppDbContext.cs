@@ -19,7 +19,7 @@ namespace Refacto.DotNet.Controllers.Database.Context
 
             // Configure many-to-many relationship between Order and Product
             _ = modelBuilder.Entity<Order>()
-                .HasMany(o => o.Items)
+                .HasMany(order => order.Items)
                 .WithMany(); // Since Product doesn't have a collection for Order
 
         }

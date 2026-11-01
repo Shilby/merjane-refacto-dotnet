@@ -6,23 +6,23 @@ namespace Refacto.DotNet.Controllers.Services.Impl
 {
     public class ProductService
     {
-        private readonly INotificationService _ns;
-        private readonly AppDbContext _ctx;
+        private readonly INotificationService _notificationService;
+        private readonly AppDbContext _dbContext;
 
-        public ProductService(INotificationService ns, AppDbContext ctx)
+        public ProductService(INotificationService notificationService, AppDbContext dbContext)
         {
-            _ns = ns;
-            _ctx = ctx;
+            _notificationService = notificationService;
+            _dbContext = dbContext;
         }
 
-        public void ProcessOrderedProduct(Product p, DateTime now)
+        public void ProcessOrderedProduct(Product product, DateTime now)
         {
-            ProductTypeRulesFactory.Create(p.Type, _ns, _ctx)?.Process(p, now);
+            ProductTypeRulesFactory.Create(product.Type, _notificationService, _dbContext)?.Process(product, now);
         }
 
-        public void NotifyDelay(int leadTime, Product p)
+        public void NotifyDelay(int leadTime, Product product)
         {
-            new NormalProductRules(_ns, _ctx).NotifyDelay(leadTime, p);
+            new NormalProductRules(_notificationService, _dbContext).NotifyDelay(leadTime, product);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Refacto.DotNet.Controllers.Tests.Services
 
             Assert.Equal(29, inStock.Available);
             Assert.Equal(0, outOfStock.Available);
-            _mockDbContext.Verify(ctx => ctx.SaveChanges(), Times.Exactly(2));
+            _mockDbContext.Verify(dbContext => dbContext.SaveChanges(), Times.Exactly(2));
             _mockNotificationService.Verify(service => service.SendDelayNotification(10, "USB Dongle"), Times.Once());
             _mockNotificationService.VerifyNoOtherCalls();
         }
@@ -44,7 +44,7 @@ namespace Refacto.DotNet.Controllers.Tests.Services
 
             _orderService.ProcessOrder(1);
 
-            _mockDbContext.Verify(ctx => ctx.SaveChanges(), Times.Never());
+            _mockDbContext.Verify(dbContext => dbContext.SaveChanges(), Times.Never());
             _mockNotificationService.VerifyNoOtherCalls();
         }
 
@@ -58,7 +58,7 @@ namespace Refacto.DotNet.Controllers.Tests.Services
 
         private void GivenOrders(params Order[] orders)
         {
-            _ = _mockDbContext.Setup(x => x.Orders).ReturnsDbSet(orders);
+            _ = _mockDbContext.Setup(dbContext => dbContext.Orders).ReturnsDbSet(orders);
         }
     }
 }

@@ -6,28 +6,28 @@ namespace Refacto.DotNet.Controllers.ProductRules
 {
     public abstract class ProductTypeRules
     {
-        protected readonly INotificationService _ns;
-        protected readonly AppDbContext _ctx;
+        protected readonly INotificationService _notificationService;
+        protected readonly AppDbContext _dbContext;
 
-        protected ProductTypeRules(INotificationService ns, AppDbContext ctx)
+        protected ProductTypeRules(INotificationService notificationService, AppDbContext dbContext)
         {
-            _ns = ns;
-            _ctx = ctx;
+            _notificationService = notificationService;
+            _dbContext = dbContext;
         }
 
-        public abstract void Process(Product p, DateTime now);
+        public abstract void Process(Product product, DateTime now);
 
-        public void NotifyDelay(int leadTime, Product p)
+        public void NotifyDelay(int leadTime, Product product)
         {
-            p.LeadTime = leadTime;
-            _ = _ctx.SaveChanges();
-            _ns.SendDelayNotification(leadTime, p.Name);
+            product.LeadTime = leadTime;
+            _ = _dbContext.SaveChanges();
+            _notificationService.SendDelayNotification(leadTime, product.Name);
         }
 
-        protected void Sell(Product p)
+        protected void Sell(Product product)
         {
-            p.Sell();
-            _ = _ctx.SaveChanges();
+            product.Sell();
+            _ = _dbContext.SaveChanges();
         }
     }
 }

@@ -7,22 +7,22 @@ namespace Refacto.DotNet.Controllers.Services.Impl
     public class OrderService
     {
         private readonly ProductService _productService;
-        private readonly AppDbContext _ctx;
+        private readonly AppDbContext _dbContext;
 
-        public OrderService(ProductService productService, AppDbContext ctx)
+        public OrderService(ProductService productService, AppDbContext dbContext)
         {
             _productService = productService;
-            _ctx = ctx;
+            _dbContext = dbContext;
         }
 
         public void ProcessOrder(long orderId)
         {
-            Order? order = _ctx.Orders
-                .Include(o => o.Items)
-                .SingleOrDefault(o => o.Id == orderId);
+            Order? orderToProcess = _dbContext.Orders
+                .Include(order => order.Items)
+                .SingleOrDefault(order => order.Id == orderId);
 
             DateTime now = DateTime.Now;
-            foreach (Product product in order.Items)
+            foreach (Product product in orderToProcess.Items)
             {
                 _productService.ProcessOrderedProduct(product, now);
             }

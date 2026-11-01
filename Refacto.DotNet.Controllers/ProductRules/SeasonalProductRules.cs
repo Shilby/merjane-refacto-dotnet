@@ -6,30 +6,30 @@ namespace Refacto.DotNet.Controllers.ProductRules
 {
     public class SeasonalProductRules : ProductTypeRules
     {
-        public SeasonalProductRules(INotificationService ns, AppDbContext ctx) : base(ns, ctx)
+        public SeasonalProductRules(INotificationService notificationService, AppDbContext dbContext) : base(notificationService, dbContext)
         {
         }
 
-        public override void Process(Product p, DateTime now)
+        public override void Process(Product product, DateTime now)
         {
-            if (now.Date > p.SeasonStartDate && now.Date < p.SeasonEndDate && p.Available > 0)
+            if (now.Date > product.SeasonStartDate && now.Date < product.SeasonEndDate && product.Available > 0)
             {
-                Sell(p);
+                Sell(product);
             }
-            else if (now.AddDays(p.LeadTime) > p.SeasonEndDate)
+            else if (now.AddDays(product.LeadTime) > product.SeasonEndDate)
             {
-                _ns.SendOutOfStockNotification(p.Name);
-                p.Available = 0;
-                _ = _ctx.SaveChanges();
+                _notificationService.SendOutOfStockNotification(product.Name);
+                product.Available = 0;
+                _ = _dbContext.SaveChanges();
             }
-            else if (p.SeasonStartDate > now)
+            else if (product.SeasonStartDate > now)
             {
-                _ns.SendOutOfStockNotification(p.Name);
-                _ = _ctx.SaveChanges();
+                _notificationService.SendOutOfStockNotification(product.Name);
+                _ = _dbContext.SaveChanges();
             }
             else
             {
-                NotifyDelay(p.LeadTime, p);
+                NotifyDelay(product.LeadTime, product);
             }
         }
     }

@@ -21,7 +21,7 @@ namespace Refacto.DotNet.Controllers.Tests.Services
         {
             _mockNotificationService = new Mock<INotificationService>();
             _mockDbContext = new Mock<AppDbContext>();
-            _ = _mockDbContext.Setup(x => x.Products).ReturnsDbSet(Array.Empty<Product>());
+            _ = _mockDbContext.Setup(dbContext => dbContext.Products).ReturnsDbSet(Array.Empty<Product>());
             _productService = new ProductService(_mockNotificationService.Object, _mockDbContext.Object);
         }
 
@@ -43,7 +43,7 @@ namespace Refacto.DotNet.Controllers.Tests.Services
             // THEN
             Assert.Equal(0, product.Available);
             Assert.Equal(15, product.LeadTime);
-            _mockDbContext.Verify(ctx => ctx.SaveChanges(), Times.Once());
+            _mockDbContext.Verify(dbContext => dbContext.SaveChanges(), Times.Once());
             _mockNotificationService.Verify(service => service.SendDelayNotification(product.LeadTime, product.Name), Times.Once());
         }
 
@@ -55,7 +55,7 @@ namespace Refacto.DotNet.Controllers.Tests.Services
             _productService.ProcessOrderedProduct(product, Now);
 
             Assert.Equal(29, product.Available);
-            _mockDbContext.Verify(ctx => ctx.SaveChanges(), Times.Once());
+            _mockDbContext.Verify(dbContext => dbContext.SaveChanges(), Times.Once());
             _mockNotificationService.VerifyNoOtherCalls();
         }
 
@@ -68,7 +68,7 @@ namespace Refacto.DotNet.Controllers.Tests.Services
 
             Assert.Equal(0, product.Available);
             Assert.Equal(10, product.LeadTime);
-            _mockDbContext.Verify(ctx => ctx.SaveChanges(), Times.Once());
+            _mockDbContext.Verify(dbContext => dbContext.SaveChanges(), Times.Once());
             _mockNotificationService.Verify(service => service.SendDelayNotification(10, "USB Dongle"), Times.Once());
             _mockNotificationService.VerifyNoOtherCalls();
         }
@@ -81,7 +81,7 @@ namespace Refacto.DotNet.Controllers.Tests.Services
             _productService.ProcessOrderedProduct(product, Now);
 
             Assert.Equal(0, product.Available);
-            _mockDbContext.Verify(ctx => ctx.SaveChanges(), Times.Never());
+            _mockDbContext.Verify(dbContext => dbContext.SaveChanges(), Times.Never());
             _mockNotificationService.VerifyNoOtherCalls();
         }
 
@@ -93,7 +93,7 @@ namespace Refacto.DotNet.Controllers.Tests.Services
             _productService.ProcessOrderedProduct(product, Now);
 
             Assert.Equal(29, product.Available);
-            _mockDbContext.Verify(ctx => ctx.SaveChanges(), Times.Once());
+            _mockDbContext.Verify(dbContext => dbContext.SaveChanges(), Times.Once());
             _mockNotificationService.VerifyNoOtherCalls();
         }
 
@@ -116,7 +116,7 @@ namespace Refacto.DotNet.Controllers.Tests.Services
             _productService.ProcessOrderedProduct(product, Now);
 
             Assert.Equal(0, product.Available);
-            _mockDbContext.Verify(ctx => ctx.SaveChanges(), Times.Once());
+            _mockDbContext.Verify(dbContext => dbContext.SaveChanges(), Times.Once());
             _mockNotificationService.Verify(service => service.SendExpirationNotification("Milk", Today), Times.Once());
             _mockNotificationService.VerifyNoOtherCalls();
         }
@@ -161,7 +161,7 @@ namespace Refacto.DotNet.Controllers.Tests.Services
             _productService.ProcessOrderedProduct(product, Now);
 
             Assert.Equal(29, product.Available);
-            _mockDbContext.Verify(ctx => ctx.SaveChanges(), Times.Once());
+            _mockDbContext.Verify(dbContext => dbContext.SaveChanges(), Times.Once());
             _mockNotificationService.VerifyNoOtherCalls();
         }
 
@@ -185,7 +185,7 @@ namespace Refacto.DotNet.Controllers.Tests.Services
             _productService.ProcessOrderedProduct(product, Now);
 
             Assert.Equal(30, product.Available);
-            _mockDbContext.Verify(ctx => ctx.SaveChanges(), Times.Once());
+            _mockDbContext.Verify(dbContext => dbContext.SaveChanges(), Times.Once());
             _mockNotificationService.Verify(service => service.SendOutOfStockNotification("Watermelon"), Times.Once());
             _mockNotificationService.VerifyNoOtherCalls();
         }
@@ -210,7 +210,7 @@ namespace Refacto.DotNet.Controllers.Tests.Services
             _productService.ProcessOrderedProduct(product, Now);
 
             Assert.Equal(0, product.Available);
-            _mockDbContext.Verify(ctx => ctx.SaveChanges(), Times.Once());
+            _mockDbContext.Verify(dbContext => dbContext.SaveChanges(), Times.Once());
             _mockNotificationService.Verify(service => service.SendOutOfStockNotification("Watermelon"), Times.Once());
             _mockNotificationService.VerifyNoOtherCalls();
         }
@@ -260,7 +260,7 @@ namespace Refacto.DotNet.Controllers.Tests.Services
             _productService.ProcessOrderedProduct(product, Now);
 
             Assert.Equal(30, product.Available);
-            _mockDbContext.Verify(ctx => ctx.SaveChanges(), Times.Never());
+            _mockDbContext.Verify(dbContext => dbContext.SaveChanges(), Times.Never());
             _mockNotificationService.VerifyNoOtherCalls();
         }
     }
