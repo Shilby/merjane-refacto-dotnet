@@ -1,6 +1,6 @@
 ﻿using Refacto.DotNet.Controllers.Database.Context;
 using Refacto.DotNet.Controllers.Entities;
-using Refacto.DotNet.Controllers.ProductRules;
+using Refacto.DotNet.Controllers.Services.ProductRules;
 
 namespace Refacto.DotNet.Controllers.Services.Impl
 {
