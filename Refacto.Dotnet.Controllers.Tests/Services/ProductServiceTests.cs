@@ -8,7 +8,7 @@ using Refacto.DotNet.Controllers.Services.Impl;
 
 namespace Refacto.DotNet.Controllers.Tests.Services
 {
-    public class MyUnitTests
+    public class ProductServiceTests
     {
         private static readonly DateTime Now = new(2026, 6, 15, 14, 30, 0);
         private static readonly DateTime Today = Now.Date;
@@ -17,7 +17,7 @@ namespace Refacto.DotNet.Controllers.Tests.Services
         private readonly Mock<AppDbContext> _mockDbContext;
         private readonly ProductService _productService;
 
-        public MyUnitTests()
+        public ProductServiceTests()
         {
             _mockNotificationService = new Mock<INotificationService>();
             _mockDbContext = new Mock<AppDbContext>();
