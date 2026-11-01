@@ -31,9 +31,10 @@ namespace Refacto.DotNet.Controllers.Controllers
             List<long> ids = new() { orderId };
             ICollection<Entities.Product>? products = order.Items;
 
+            DateTime now = DateTime.Now;
             foreach (Entities.Product p in products)
             {
-                if (p.CanBeSold(DateTime.Now))
+                if (p.CanBeSold(now))
                 {
                     p.Sell();
                     _ = _ctx.SaveChanges();
@@ -47,11 +48,11 @@ namespace Refacto.DotNet.Controllers.Controllers
                 }
                 else if (p.Type == ProductType.Seasonal)
                 {
-                    _ps.HandleSeasonalProduct(p);
+                    _ps.HandleSeasonalProduct(p, now);
                 }
                 else if (p.Type == ProductType.Expirable)
                 {
-                    _ps.HandleExpiredProduct(p);
+                    _ps.HandleExpiredProduct(p, now);
                 }
             }
 
